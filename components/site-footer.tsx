@@ -30,10 +30,11 @@ export function SiteFooter() {
               >
                 {siteConfig.contact.phone}
               </a>
+              <p>{siteConfig.contact.hours}</p>
             </div>
           </div>
 
-          <div className="grid gap-8 sm:grid-cols-3">
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {siteConfig.footerColumns.map((column) => (
               <div key={column.title}>
                 <h2 className="text-xs font-semibold uppercase tracking-[0.16em] text-teal-300">

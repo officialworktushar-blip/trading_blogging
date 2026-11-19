@@ -26,7 +26,7 @@ const navItems = [
   { label: "All Blogs", href: "/admin/blogs", icon: FileText, exact: false },
   { label: "Add New Blog", href: "/admin/blogs/new", icon: PlusCircle, exact: true },
   { label: "Categories", href: "/admin/categories", icon: Tags, exact: true },
-  { label: "Support Requests", href: "/admin/support", icon: MessageSquare, exact: true },
+  { label: "Support Requests", href: "/admin/support-requests", icon: MessageSquare, exact: true },
 ] as const;
 
 function isActive(pathname: string, href: string, exact: boolean): boolean {

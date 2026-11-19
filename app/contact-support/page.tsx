@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ArrowRight, Mail, MessageSquare, Phone } from "lucide-react";
-import { siteConfig } from "@/lib/site-config";
+import { Clock3, Mail, Phone } from "lucide-react";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { Reveal } from "@/components/animations/reveal";
 import { canonicalMetadata } from "@/lib/seo";
+import { siteConfig } from "@/lib/site-config";
+import { ContactSupportForm } from "./contact-form";
 
 export const metadata: Metadata = {
   title: "Contact Support+",
@@ -15,7 +15,9 @@ export const metadata: Metadata = {
 export default function ContactSupportPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:py-16">
-      <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Contact Support+" }]} />
+      <Breadcrumbs
+        items={[{ label: "Home", href: "/" }, { label: "Contact Support+" }]}
+      />
 
       <header className="mt-6 max-w-2xl">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-700">
@@ -30,59 +32,69 @@ export default function ContactSupportPage() {
         </p>
       </header>
 
-      <div className="mt-10 grid gap-5 sm:grid-cols-2">
-        <Reveal className="h-full">
-          <a
-            href={`mailto:${siteConfig.contact.email}`}
-            className="card-lift group flex h-full flex-col rounded-xl border border-slate-200 p-6"
-          >
-            <Mail className="h-6 w-6 text-teal-700" aria-hidden="true" />
-            <h2 className="mt-4 text-lg font-semibold text-ink-900">Email the desk</h2>
-            <p className="mt-2 text-sm text-ink-500">{siteConfig.contact.email}</p>
-            <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-teal-700">
-              Write to us
-              <ArrowRight className="hover-arrow h-4 w-4" aria-hidden="true" />
-            </span>
-          </a>
+      <div className="mt-10 grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
+        <Reveal>
+          <ContactSupportForm />
         </Reveal>
-        <Reveal className="h-full" delay={0.06}>
-          <a
-            href={`tel:${siteConfig.contact.phone}`}
-            className="card-lift group flex h-full flex-col rounded-xl border border-slate-200 p-6"
-          >
-            <Phone className="h-6 w-6 text-teal-700" aria-hidden="true" />
-            <h2 className="mt-4 text-lg font-semibold text-ink-900">Call support</h2>
-            <p className="mt-2 text-sm text-ink-500">{siteConfig.contact.phone}</p>
-            <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-teal-700">
-              Make a call
-              <ArrowRight className="hover-arrow h-4 w-4" aria-hidden="true" />
-            </span>
-          </a>
-        </Reveal>
-      </div>
 
-      <section className="mt-14 max-w-3xl">
-        <MessageSquare className="h-6 w-6 text-teal-700" aria-hidden="true" />
-        <h2 className="mt-4 font-serif text-2xl font-semibold text-ink-900">
-          What we can help with
-        </h2>
-        <ul className="mt-4 space-y-3 text-sm leading-relaxed text-ink-700">
-          <li>Clarifying a concept explained in a guide.</li>
-          <li>Suggesting a market, indicator or strategy breakdown.</li>
-          <li>Reporting a broken chart, link or accessibility issue.</li>
-        </ul>
-        <p className="mt-6 text-sm leading-relaxed text-ink-500">
-          Trading involves risk. Content is for education only, not financial
-          advice. We cannot provide personalised investment recommendations.
-        </p>
-        <Link
-          href="/blog"
-          className="group mt-6 inline-flex items-center gap-2 text-sm font-semibold text-teal-700"
-        >
-          Browse the knowledge base
-          <ArrowRight className="hover-arrow h-4 w-4" aria-hidden="true" />
-        </Link>
-      </section>
+        <aside className="space-y-4 lg:sticky lg:top-28">
+          <Reveal delay={0.06}>
+            <div className="card-lift rounded-xl border border-slate-200 bg-white p-5">
+              <h2 className="font-serif text-xl font-semibold text-ink-900">
+                Contact details
+              </h2>
+              <ul className="mt-4 space-y-4 text-sm text-ink-700">
+                <li className="flex gap-3">
+                  <Mail className="mt-0.5 h-4 w-4 shrink-0 text-teal-700" aria-hidden="true" />
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-ink-500">
+                      Email
+                    </p>
+                    <a
+                      href={`mailto:${siteConfig.contact.email}`}
+                      className="mt-0.5 block font-medium text-teal-700 hover:underline"
+                    >
+                      {siteConfig.contact.email}
+                    </a>
+                  </div>
+                </li>
+                <li className="flex gap-3">
+                  <Phone className="mt-0.5 h-4 w-4 shrink-0 text-teal-700" aria-hidden="true" />
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-ink-500">
+                      Phone
+                    </p>
+                    <a
+                      href={`tel:${siteConfig.contact.phone}`}
+                      className="mt-0.5 block font-medium text-ink-900 hover:text-teal-700"
+                    >
+                      {siteConfig.contact.phone}
+                    </a>
+                  </div>
+                </li>
+                <li className="flex gap-3">
+                  <Clock3 className="mt-0.5 h-4 w-4 shrink-0 text-teal-700" aria-hidden="true" />
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-ink-500">
+                      Hours
+                    </p>
+                    <p className="mt-0.5 font-medium text-ink-900">
+                      {siteConfig.contact.hours}
+                    </p>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </Reveal>
+          <Reveal delay={0.12}>
+            <div className="rounded-xl border border-slate-200 bg-slate-50 p-5 text-sm leading-relaxed text-ink-500">
+              We can help clarify concepts from guides, take topic suggestions,
+              and fix site or accessibility issues. We cannot provide
+              personalised investment recommendations.
+            </div>
+          </Reveal>
+        </aside>
+      </div>
     </div>
   );
 }

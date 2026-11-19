@@ -6,6 +6,7 @@ export const siteConfig = {
   contact: {
     email: "hello@tradelens.example",
     phone: "+1 (555) 000-0000",
+    hours: "Monday–Friday, 9:00 AM–5:00 PM (ET)",
   },
   nav: [
     { label: "Home", href: "/" },
@@ -43,7 +44,14 @@ export const siteConfig = {
       links: [
         { label: "Contact Support+", href: "/contact-support" },
         { label: "Email us", href: "mailto:hello@tradelens.example" },
-        { label: "Risk disclaimer", href: "/about-us#disclaimer" },
+      ],
+    },
+    {
+      title: "Legal",
+      links: [
+        { label: "Disclaimer", href: "/disclaimer" },
+        { label: "Privacy Policy", href: "/privacy-policy" },
+        { label: "Terms", href: "/terms" },
       ],
     },
   ],
