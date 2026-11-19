@@ -37,13 +37,13 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
     const { data: adminRow, error: adminError } = await supabase
       .from("admin_users")
       .select("email")
-      .eq("email", user.email.toLowerCase())
+      .ilike("email", user.email.toLowerCase())
       .maybeSingle();
 
     if (adminError) {
       console.error("Admin allowlist lookup failed:", adminError.message);
     } else if (adminRow) {
-      redirect("/admin");
+      redirect("/admin/dashboard");
     } else {
       await supabase.auth.signOut();
     }

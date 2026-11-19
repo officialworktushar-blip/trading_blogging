@@ -51,7 +51,7 @@ export async function loginAction(
   const { data: adminRow, error: adminError } = await supabase
     .from("admin_users")
     .select("email")
-    .eq("email", userEmail)
+    .ilike("email", userEmail)
     .maybeSingle();
 
   if (adminError) {
@@ -66,7 +66,7 @@ export async function loginAction(
   }
 
   revalidatePath("/admin", "layout");
-  redirect("/admin");
+  redirect("/admin/dashboard");
 }
 
 export async function logoutAction(): Promise<void> {

@@ -75,7 +75,7 @@ export async function middleware(request: NextRequest) {
   const { data: adminRow, error: adminError } = await supabase
     .from("admin_users")
     .select("email")
-    .eq("email", email)
+    .ilike("email", email)
     .maybeSingle();
 
   if (adminError) {

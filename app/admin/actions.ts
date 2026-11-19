@@ -32,7 +32,8 @@ function revalidatePost(slug: string) {
   revalidatePath("/");
   revalidatePath("/blog");
   revalidatePath(`/blog/${slug}`);
-  revalidatePath("/admin/posts");
+  revalidatePath("/admin/blogs");
+  revalidatePath("/admin/dashboard");
 }
 
 export async function createPost(data: PostFormData): Promise<void> {
@@ -47,7 +48,7 @@ export async function createPost(data: PostFormData): Promise<void> {
 
   if (error) throw new Error(error.message);
   revalidatePost(inserted.slug);
-  redirect("/admin/posts");
+  redirect("/admin/blogs");
 }
 
 export async function updatePost(data: PostFormData): Promise<void> {
@@ -59,7 +60,7 @@ export async function updatePost(data: PostFormData): Promise<void> {
   if (error) throw new Error(error.message);
 
   revalidatePost(row.slug);
-  redirect("/admin/posts");
+  redirect("/admin/blogs");
 }
 
 export async function deletePost(id: string, slug: string): Promise<void> {

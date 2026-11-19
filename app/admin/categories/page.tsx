@@ -52,7 +52,7 @@ export default async function AdminCategoriesPage() {
           </p>
         </div>
         <Link
-          href="/admin/posts/new"
+          href="/admin/blogs/new"
           className="rounded-lg bg-navy-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-navy-800"
         >
           + Add New Blog

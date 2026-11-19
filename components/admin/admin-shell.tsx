@@ -22,9 +22,9 @@ type AdminShellProps = {
 };
 
 const navItems = [
-  { label: "Dashboard", href: "/admin", icon: LayoutDashboard, exact: true },
-  { label: "All Blogs", href: "/admin/posts", icon: FileText, exact: false },
-  { label: "Add New Blog", href: "/admin/posts/new", icon: PlusCircle, exact: true },
+  { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard, exact: true },
+  { label: "All Blogs", href: "/admin/blogs", icon: FileText, exact: false },
+  { label: "Add New Blog", href: "/admin/blogs/new", icon: PlusCircle, exact: true },
   { label: "Categories", href: "/admin/categories", icon: Tags, exact: true },
   { label: "Support Requests", href: "/admin/support", icon: MessageSquare, exact: true },
 ] as const;

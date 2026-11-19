@@ -1,11 +1,16 @@
 export type Post = {
   id: string;
   title: string;
+  sub_heading: string | null;
   slug: string;
   excerpt: string | null;
   content: string;
   cover_image_url: string | null;
+  cover_image_alt: string | null;
+  cover_image_note: string | null;
   category: string;
+  author: string | null;
+  featured: boolean;
   published: boolean;
   created_at: string;
   updated_at: string;

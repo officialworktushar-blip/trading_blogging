@@ -58,8 +58,7 @@ export function SiteFooter() {
 
         <div className="mt-12 border-t border-white/10 pt-6">
           <p className="text-xs leading-relaxed text-white/55">
-            Trading involves risk. Content is for education only, not financial
-            advice.
+            Trading involves risk. Content is for education only, not financial advice.
           </p>
           <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-white/45">
             <p>

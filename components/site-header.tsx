@@ -158,7 +158,7 @@ export function SiteHeader() {
           ))}
           <li className="sm:col-span-2">
             <Link
-              href="/admin"
+              href="/admin/dashboard"
               tabIndex={menuOpen ? 0 : -1}
               className="mt-2 block rounded-lg border border-slate-200 px-3 py-2.5 text-sm font-medium text-ink-500 transition-colors hover:bg-slate-50"
             >

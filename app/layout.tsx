@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import { siteConfig } from "@/lib/site-config";
 import { PageLoadBar } from "@/components/animations/logo-mark";
 import { SiteChrome } from "@/components/site-chrome";
@@ -20,7 +21,7 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <html lang="en">

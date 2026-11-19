@@ -113,12 +113,18 @@ export default async function PostPage({ params }: PostPageProps) {
               <h1 className="text-balance mt-5 font-serif text-4xl font-semibold leading-tight tracking-tight text-ink-900 sm:text-5xl">
                 {post.title}
               </h1>
+              {post.sub_heading ? (
+                <p className="mt-3 font-serif text-xl text-ink-700">
+                  {post.sub_heading}
+                </p>
+              ) : null}
               {post.excerpt ? (
                 <p className="mt-5 text-lg leading-relaxed text-ink-500">
                   {post.excerpt}
                 </p>
               ) : null}
               <div className="mt-6 flex flex-wrap items-center gap-5 text-sm text-ink-500">
+                {post.author ? <span>By {post.author}</span> : null}
                 <time dateTime={post.created_at}>{formatDate(post.created_at)}</time>
                 <span className="inline-flex items-center gap-1.5">
                   <Clock3 className="h-4 w-4" aria-hidden="true" />
@@ -132,7 +138,7 @@ export default async function PostPage({ params }: PostPageProps) {
                 <div className="relative aspect-[16/9] w-full overflow-hidden rounded-xl bg-slate-100">
                   <Image
                     src={post.cover_image_url}
-                    alt={post.title}
+                    alt={post.cover_image_alt || post.title}
                     fill
                     priority
                     sizes="(max-width: 1024px) 100vw, 860px"
