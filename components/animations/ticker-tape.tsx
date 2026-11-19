@@ -1,3 +1,5 @@
+"use client";
+
 type TickerItem = {
   symbol: string;
   price: string;
