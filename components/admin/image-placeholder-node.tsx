@@ -1,6 +1,6 @@
 "use client";
 
-import { Node, mergeAttributes } from "@tiptap/core";
+import { Node, mergeAttributes, type Editor } from "@tiptap/core";
 import {
   NodeViewWrapper,
   ReactNodeViewRenderer,
@@ -9,7 +9,7 @@ import {
 import { ImagePlus, Trash2 } from "lucide-react";
 import { useRef, useState, type DragEvent } from "react";
 
-type PlaceholderStorage = {
+export type PlaceholderStorage = {
   upload: (file: File, note: string) => Promise<string>;
   onError: (message: string) => void;
   onBusy: (busy: boolean) => void;
@@ -17,6 +17,30 @@ type PlaceholderStorage = {
 };
 
 export type ImagePlaceholderOptions = PlaceholderStorage;
+
+export function getPlaceholderStorage(
+  editor: Editor,
+): PlaceholderStorage | undefined {
+  return (editor.storage as unknown as Record<string, PlaceholderStorage | undefined>).imagePlaceholder;
+}
+
+function getPlaceholderOptions(
+  editor: Editor,
+): Partial<PlaceholderStorage> | undefined {
+  const manager = (
+    editor as unknown as {
+      extensionManager?: { extensions?: { name: string; options: unknown }[] };
+    }
+  ).extensionManager;
+
+  return manager?.extensions?.find(
+    (extension) => extension.name === "imagePlaceholder",
+  )?.options as Partial<PlaceholderStorage> | undefined;
+}
+
+function reportPlaceholderError(editor: Editor, message: string): void {
+  getPlaceholderOptions(editor)?.onError?.(message);
+}
 
 export function newPlaceholderId(): string {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -31,10 +55,10 @@ export function normalizePlaceholderIds(html: string): string {
   parsed.body
     .querySelectorAll("div.image-placeholder, div[data-image-placeholder]")
     .forEach((element) => {
-    if (!element.getAttribute("data-id")) {
-      element.setAttribute("data-id", newPlaceholderId());
-    }
-  });
+      if (!element.getAttribute("data-id")) {
+        element.setAttribute("data-id", newPlaceholderId());
+      }
+    });
   return parsed.body.innerHTML;
 }
 
@@ -49,16 +73,17 @@ function ImagePlaceholderView({
   const [busy, setBusy] = useState(false);
   const dataId = String(node.attrs.dataId ?? "");
   const note = String(node.attrs.text ?? "");
-  const storage = editor.storage.imagePlaceholder as
-    | PlaceholderStorage
-    | undefined;
+  const storage = getPlaceholderStorage(editor);
 
   async function handleFile(file: File) {
     if (busy) return;
+    if (!storage) {
+      reportPlaceholderError(editor, "Image upload is not available.");
+      return;
+    }
     setBusy(true);
-    storage?.onBusy(true);
+    storage.onBusy(true);
     try {
-      if (!storage) throw new Error("Image upload is not available.");
       const url = await storage.upload(file, note);
 
       const position = getPos();
@@ -99,10 +124,10 @@ function ImagePlaceholderView({
         .run();
       storage.onUploaded(url);
     } catch (error) {
-      storage?.onError(error instanceof Error ? error.message : "Upload failed.");
+      storage.onError(error instanceof Error ? error.message : "Upload failed.");
     } finally {
       setBusy(false);
-      storage?.onBusy(false);
+      storage.onBusy(false);
     }
   }
 
