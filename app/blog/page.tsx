@@ -3,6 +3,8 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase";
 import { POST_SUMMARY_COLUMNS, type PostSummary } from "@/lib/types";
 import { getCategories } from "@/lib/posts";
+import { canonicalMetadata } from "@/lib/seo";
+import { sanitizeIlikeQuery } from "@/lib/search";
 import { ArticleCard } from "@/components/article-card";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { Pagination } from "@/components/pagination";
@@ -13,6 +15,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Blog",
   description: "Trading strategies, risk management, and market insights.",
+  ...canonicalMetadata("/blog"),
 };
 
 const PAGE_SIZE = 6;
@@ -43,7 +46,7 @@ async function getPosts(
 
   if (category) builder = builder.eq("category", category);
 
-  const cleanQuery = query?.replace(/[%,"\\]/g, " ").trim();
+  const cleanQuery = query ? sanitizeIlikeQuery(query) : "";
   if (cleanQuery) {
     builder = builder.or(
       `title.ilike.%${cleanQuery}%,excerpt.ilike.%${cleanQuery}%`,

@@ -1,13 +1,13 @@
-import Link from "next/link";
 import type { Metadata } from "next";
-import { ArrowRight, BookOpen, LineChart, ShieldCheck } from "lucide-react";
-import { createClient } from "@/lib/supabase";
-import { POST_SUMMARY_COLUMNS, type PostSummary } from "@/lib/types";
+import Link from "next/link";
+import { ArrowRight, BookOpen, CheckCircle2, Mail } from "lucide-react";
 import { marketTopics, siteConfig } from "@/lib/site-config";
-import { ArticleCard } from "@/components/article-card";
-import { CategorySection, type CategoryTile } from "@/components/category-section";
+import { canonicalMetadata } from "@/lib/seo";
+import { getLatestPosts, getPostsByCategory } from "@/lib/posts";
 import { HeroFeatured } from "@/components/hero-featured";
-import { ImagePlaceholder } from "@/components/image-placeholder";
+import { StatsStrip } from "@/components/stats-strip";
+import { ArticleCard } from "@/components/article-card";
+import { CategoryLatestSection } from "@/components/category-latest-section";
 import { Reveal } from "@/components/animations/reveal";
 
 export const dynamic = "force-dynamic";
@@ -15,97 +15,22 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: siteConfig.name,
   description: siteConfig.description,
-};
-
-async function getLatestPosts(limit: number): Promise<PostSummary[]> {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("posts")
-    .select(POST_SUMMARY_COLUMNS)
-    .eq("published", true)
-    .order("created_at", { ascending: false })
-    .limit(limit);
-
-  if (error) {
-    console.error("Failed to load posts:", error.message);
-    return [];
-  }
-  return (data ?? []) as PostSummary[];
-}
-
-const iconBySlug: Record<string, NonNullable<CategoryTile["icon"]>> = {
-  "stock-market": "stock",
-  forex: "forex",
-  crypto: "crypto",
-  "trading-strategies": "strategies",
-  "technical-analysis": "analysis",
+  ...canonicalMetadata("/"),
 };
 
 export default async function HomePage() {
-  const posts = await getLatestPosts(7);
+  const [posts, ...categoryPosts] = await Promise.all([
+    getLatestPosts(7),
+    ...marketTopics.map((topic) => getPostsByCategory(topic.label, 4)),
+  ]);
+
   const featured = posts[0] ?? null;
   const latest = posts.slice(1, 7);
 
   return (
     <div>
       <HeroFeatured featured={featured} />
-
-      <CategorySection
-        id="markets"
-        title="Markets and methods, explained simply"
-        description="Pick a market to learn how it moves, then build a strategy with rules you can actually follow."
-        items={marketTopics.map((topic) => ({
-          label: topic.label,
-          href: `/market/${topic.slug}`,
-          description: topic.short,
-          icon: iconBySlug[topic.slug],
-        }))}
-      />
-
-      <section className="border-y border-slate-200 bg-slate-50">
-        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 lg:grid-cols-2 lg:items-center">
-          <Reveal>
-            <ImagePlaceholder
-              label="Workshop mockup: trade journal with entry, stop, target and review notes"
-              className="aspect-[4/3]"
-            />
-          </Reveal>
-          <Reveal delay={0.1}>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-700">
-              A process you can repeat
-            </p>
-            <h2 className="mt-3 font-serif text-3xl font-semibold tracking-tight text-ink-900 sm:text-4xl">
-              From chart reading to a written trading plan
-            </h2>
-            <p className="mt-4 leading-relaxed text-ink-500">
-              Every guide follows the same structure: what the market is doing,
-              what would invalidate the idea, and how to size the position so
-              one outcome never defines your month.
-            </p>
-            <ul className="mt-6 space-y-4">
-              <li className="flex gap-3 text-sm text-ink-700">
-                <LineChart className="mt-0.5 h-5 w-5 shrink-0 text-teal-700" aria-hidden="true" />
-                <span>Chart examples with clear support, resistance and structure.</span>
-              </li>
-              <li className="flex gap-3 text-sm text-ink-700">
-                <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-teal-700" aria-hidden="true" />
-                <span>Risk-first checklists before any entry discussion.</span>
-              </li>
-              <li className="flex gap-3 text-sm text-ink-700">
-                <BookOpen className="mt-0.5 h-5 w-5 shrink-0 text-teal-700" aria-hidden="true" />
-                <span>Journal prompts that turn a screen into a lesson.</span>
-              </li>
-            </ul>
-            <Link
-              href="/blog"
-              className="group mt-8 inline-flex items-center gap-2 text-sm font-semibold text-teal-700"
-            >
-              Browse every guide
-              <ArrowRight className="hover-arrow h-4 w-4" aria-hidden="true" />
-            </Link>
-          </Reveal>
-        </div>
-      </section>
+      <StatsStrip />
 
       <section id="latest" className="mx-auto max-w-7xl px-4 py-16 sm:py-20">
         <div className="flex flex-wrap items-end justify-between gap-4">
@@ -141,25 +66,117 @@ export default async function HomePage() {
         )}
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 pb-20">
-        <Reveal>
-          <div className="flex flex-col gap-5 rounded-2xl bg-teal-50 px-6 py-10 sm:flex-row sm:items-center sm:justify-between sm:px-10">
-            <div>
-              <h2 className="font-serif text-2xl font-semibold text-ink-900 sm:text-3xl">
-                Have a topic you want unpacked?
+      {marketTopics.map((topic, index) => (
+        <CategoryLatestSection
+          key={topic.slug}
+          id={index === 0 ? "markets" : undefined}
+          title={topic.label}
+          href={`/${topic.slug}`}
+          posts={categoryPosts[index] ?? []}
+        />
+      ))}
+
+      <section className="border-y border-slate-200 bg-white">
+        <div className="mx-auto max-w-7xl px-4 py-14 sm:py-16">
+          <Reveal>
+            <div className="max-w-2xl">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-700">
+                Trading basics
+              </p>
+              <h2 className="mt-3 font-serif text-3xl font-semibold tracking-tight text-ink-900 sm:text-4xl">
+                Build a repeatable process
               </h2>
-              <p className="mt-2 text-sm text-ink-500">
-                Send it to the support desk. The clearest questions become the
-                next guides.
+              <p className="mt-4 leading-relaxed text-ink-500">
+                Before indicators and setups, lock in the habits that protect
+                capital and make learning measurable.
               </p>
             </div>
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {[
+                {
+                  title: "Plan first",
+                  text: "Define the idea, entry, stop and target before you click.",
+                },
+                {
+                  title: "Size small",
+                  text: "Risk a fixed, affordable amount so one loss stays small.",
+                },
+                {
+                  title: "Confirm context",
+                  text: "Use higher-timeframe structure and volume as evidence.",
+                },
+                {
+                  title: "Journal always",
+                  text: "Record the reason and review outcomes without hindsight bias.",
+                },
+              ].map((item) => (
+                <div
+                  key={item.title}
+                  className="card-lift rounded-xl border border-slate-200 bg-slate-50 p-5"
+                >
+                  <CheckCircle2 className="h-5 w-5 text-teal-700" aria-hidden="true" />
+                  <h3 className="mt-3 font-semibold text-ink-900">{item.title}</h3>
+                  <p className="mt-1.5 text-sm leading-relaxed text-ink-500">{item.text}</p>
+                </div>
+              ))}
+            </div>
             <Link
-              href="/contact"
-              className="group inline-flex shrink-0 items-center gap-2 rounded-lg bg-navy-900 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-navy-800"
+              href="/blog"
+              className="group mt-8 inline-flex items-center gap-2 text-sm font-semibold text-teal-700"
             >
-              Contact Support+
+              <BookOpen className="h-4 w-4" aria-hidden="true" />
+              Browse every guide
               <ArrowRight className="hover-arrow h-4 w-4" aria-hidden="true" />
             </Link>
+          </Reveal>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 py-16 sm:py-20">
+        <Reveal>
+          <div className="grid gap-8 rounded-2xl bg-navy-950 px-6 py-10 text-white sm:px-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-300">
+                Newsletter
+              </p>
+              <h2 className="mt-3 font-serif text-3xl font-semibold sm:text-4xl">
+                Get new trading guides in your inbox
+              </h2>
+              <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/70 sm:text-base">
+                Weekly, education-only notes: market structure, risk habits and
+                strategy breakdowns. No signals, no spam.
+              </p>
+            </div>
+            <form
+              className="rounded-xl border border-white/15 bg-white/5 p-4 sm:p-5"
+              action="#"
+              method="post"
+            >
+              <label htmlFor="newsletter-email" className="block text-sm font-medium text-white">
+                Email address
+              </label>
+              <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+                <input
+                  id="newsletter-email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  placeholder="you@example.com"
+                  className="h-11 min-w-0 flex-1 rounded-lg border border-white/20 bg-white/10 px-3 text-sm text-white placeholder:text-white/45"
+                />
+                <button
+                  type="button"
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-teal-400 px-5 text-sm font-semibold text-navy-950 transition-colors hover:bg-teal-300"
+                >
+                  <Mail className="h-4 w-4" aria-hidden="true" />
+                  Subscribe
+                </button>
+              </div>
+              <p className="mt-3 text-xs text-white/55">
+                UI only for this demo. Trading involves risk. Content is for
+                education only, not financial advice.
+              </p>
+            </form>
           </div>
         </Reveal>
       </section>

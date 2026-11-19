@@ -97,7 +97,7 @@ export function SiteHeader() {
 
       <form
         id="site-search"
-        action="/blog"
+        action="/search"
         method="get"
         aria-hidden={!searchOpen}
         className={`absolute inset-x-0 top-full origin-top border-b border-slate-200 bg-white px-4 py-3 shadow-lg transition-[opacity,transform] duration-200 ${

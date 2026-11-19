@@ -11,9 +11,12 @@ import {
   type PostSummary,
 } from "@/lib/types";
 import { siteConfig } from "@/lib/site-config";
+import { absoluteUrl, canonicalMetadata, jsonLd } from "@/lib/seo";
 import { ArticleCard } from "@/components/article-card";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ImagePlaceholder } from "@/components/image-placeholder";
+import { ReadingProgressBar } from "@/components/reading-progress-bar";
+import { ShareBar } from "@/components/share-bar";
 import { Reveal } from "@/components/animations/reveal";
 
 export const dynamic = "force-dynamic";
@@ -61,15 +64,20 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
   const post = await getPost(slug);
   if (!post) return { title: "Post not found" };
 
+  const canonical = canonicalMetadata(`/blog/${post.slug}`);
   return {
     title: post.title,
     description: post.excerpt ?? undefined,
+    ...canonical,
     openGraph: {
+      ...canonical.openGraph,
       title: post.title,
       description: post.excerpt ?? undefined,
       images: post.cover_image_url ? [post.cover_image_url] : undefined,
       type: "article",
       publishedTime: post.created_at,
+      modifiedTime: post.updated_at,
+      authors: post.author ? [post.author] : undefined,
     },
   };
 }
@@ -84,9 +92,36 @@ export default async function PostPage({ params }: PostPageProps) {
   if (!post) notFound();
   const related = await getRelatedPosts(post);
   const categoryHref = `/blog?category=${encodeURIComponent(post.category)}`;
+  const canonical = absoluteUrl(`/blog/${post.slug}`);
+  const minutes = readingMinutes(post.content);
+
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.title,
+    description: post.excerpt ?? undefined,
+    image: post.cover_image_url ? [post.cover_image_url] : undefined,
+    datePublished: post.created_at,
+    dateModified: post.updated_at,
+    author: post.author
+      ? { "@type": "Person", name: post.author }
+      : { "@type": "Organization", name: siteConfig.name },
+    publisher: {
+      "@type": "Organization",
+      name: siteConfig.name,
+      url: siteConfig.url,
+    },
+    mainEntityOfPage: { "@type": "WebPage", "@id": canonical },
+    url: canonical,
+  };
 
   return (
     <div>
+      <ReadingProgressBar />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLd(articleJsonLd) }}
+      />
       <div className="border-b border-slate-200 bg-slate-50">
         <div className="mx-auto max-w-7xl px-4 py-6">
           <Breadcrumbs
@@ -114,7 +149,7 @@ export default async function PostPage({ params }: PostPageProps) {
                 {post.title}
               </h1>
               {post.sub_heading ? (
-                <p className="mt-3 font-serif text-xl text-ink-700">
+                <p className="mt-3 font-serif text-xl leading-snug text-ink-700">
                   {post.sub_heading}
                 </p>
               ) : null}
@@ -128,7 +163,7 @@ export default async function PostPage({ params }: PostPageProps) {
                 <time dateTime={post.created_at}>{formatDate(post.created_at)}</time>
                 <span className="inline-flex items-center gap-1.5">
                   <Clock3 className="h-4 w-4" aria-hidden="true" />
-                  {readingMinutes(post.content)} min read
+                  {minutes} min read
                 </span>
               </div>
             </header>
@@ -146,7 +181,9 @@ export default async function PostPage({ params }: PostPageProps) {
                   />
                 </div>
               ) : (
-                <ImagePlaceholder label={`Cover image: ${post.title}`} />
+                <ImagePlaceholder
+                  label={post.cover_image_note || `Cover image: ${post.title}`}
+                />
               )}
             </div>
 
@@ -155,8 +192,26 @@ export default async function PostPage({ params }: PostPageProps) {
               dangerouslySetInnerHTML={{ __html: post.content }}
             />
 
-            <footer className="mt-14 max-w-3xl border-t border-slate-200 pt-8 text-sm text-ink-500">
-              Questions about this article? Email{" "}
+            <div className="mt-12 max-w-3xl rounded-xl border border-amber-200 bg-amber-50 p-5">
+              <p className="inline-flex items-center gap-2 text-sm font-semibold text-amber-900">
+                <ShieldCheck className="h-4 w-4" aria-hidden="true" />
+                Risk disclaimer
+              </p>
+              <p className="mt-2 text-sm leading-relaxed text-amber-900/90">
+                Trading involves risk. Content is for education only, not
+                financial advice. Decide independently and consider speaking with
+                a qualified professional before acting on any information.
+              </p>
+            </div>
+
+            <ShareBar title={post.title} />
+
+            <footer className="mt-8 max-w-3xl border-t border-slate-200 pt-8 text-sm text-ink-500">
+              Questions about this article?{" "}
+              <Link href="/contact-support" className="text-teal-700 hover:underline">
+                Contact Support+
+              </Link>{" "}
+              or email{" "}
               <a
                 href={`mailto:${siteConfig.contact.email}`}
                 className="text-teal-700 hover:underline"
@@ -179,17 +234,13 @@ export default async function PostPage({ params }: PostPageProps) {
                 <li>Review the outcome in a journal, not in hindsight.</li>
               </ul>
               <Link
-                href="/contact"
+                href="/contact-support"
                 className="group mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-teal-700"
               >
                 Contact Support+
                 <ArrowRight className="hover-arrow h-4 w-4" aria-hidden="true" />
               </Link>
             </div>
-            <p className="mt-4 text-xs leading-relaxed text-ink-500">
-              Trading involves risk. Content is for education only, not
-              financial advice.
-            </p>
           </aside>
         </div>
       </article>
@@ -198,7 +249,7 @@ export default async function PostPage({ params }: PostPageProps) {
         <section className="border-t border-slate-200 bg-slate-50 py-16">
           <div className="mx-auto max-w-7xl px-4">
             <h2 className="font-serif text-3xl font-semibold text-ink-900">
-              Keep reading
+              Related articles
             </h2>
             <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {related.map((item, index) => (

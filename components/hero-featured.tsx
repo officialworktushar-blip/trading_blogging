@@ -2,7 +2,6 @@ import Link from "next/link";
 import { ArrowRight, ShieldCheck } from "lucide-react";
 import type { PostSummary } from "@/lib/types";
 import { AnimatedCandles } from "@/components/animations/animated-candles";
-import { CountUp } from "@/components/animations/count-up";
 import { FloatingChartCards } from "@/components/animations/floating-chart-cards";
 import { Reveal } from "@/components/animations/reveal";
 
@@ -33,32 +32,12 @@ export function HeroFeatured({ featured }: { featured: PostSummary | null }) {
               <ArrowRight className="hover-arrow h-4 w-4" aria-hidden="true" />
             </Link>
             <Link
-              href="/#markets"
+              href="/stock-market"
               className="inline-flex items-center gap-2 rounded-lg border border-white/20 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/10"
             >
               Explore markets
             </Link>
           </div>
-          <dl className="mt-12 grid max-w-lg grid-cols-3 gap-4 border-t border-white/10 pt-6 text-sm">
-            <div>
-              <dd>
-                <CountUp value={150} suffix="+" />
-              </dd>
-              <dt className="mt-1 text-xs text-white/60">guides</dt>
-            </div>
-            <div>
-              <dd>
-                <CountUp value={5} />
-              </dd>
-              <dt className="mt-1 text-xs text-white/60">markets</dt>
-            </div>
-            <div>
-              <dd>
-                <CountUp value={12} suffix="k+" />
-              </dd>
-              <dt className="mt-1 text-xs text-white/60">readers</dt>
-            </div>
-          </dl>
         </Reveal>
 
         <div className="relative">

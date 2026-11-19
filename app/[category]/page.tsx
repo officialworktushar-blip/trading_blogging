@@ -5,17 +5,17 @@ import { ArrowRight, Check } from "lucide-react";
 import { createClient } from "@/lib/supabase";
 import { POST_SUMMARY_COLUMNS, type PostSummary } from "@/lib/types";
 import { marketTopics, type MarketTopic } from "@/lib/site-config";
+import { canonicalMetadata } from "@/lib/seo";
 import { ArticleCard } from "@/components/article-card";
 import { Breadcrumbs } from "@/components/breadcrumbs";
-import { CategorySection, type CategoryTile } from "@/components/category-section";
 import { ImagePlaceholder } from "@/components/image-placeholder";
 import { AnimatedCandles } from "@/components/animations/animated-candles";
 import { Reveal } from "@/components/animations/reveal";
 
 export const dynamic = "force-dynamic";
 
-type MarketPageProps = {
-  params: Promise<{ slug: string }>;
+type CategoryPageProps = {
+  params: Promise<{ category: string }>;
 };
 
 function findTopic(slug: string): MarketTopic | undefined {
@@ -39,26 +39,25 @@ async function getGuides(category: string): Promise<PostSummary[]> {
   return (data ?? []) as PostSummary[];
 }
 
-export async function generateMetadata({ params }: MarketPageProps): Promise<Metadata> {
-  const { slug } = await params;
-  const topic = findTopic(slug);
+export async function generateMetadata({
+  params,
+}: CategoryPageProps): Promise<Metadata> {
+  const { category } = await params;
+  const topic = findTopic(category);
   if (!topic) return { title: "Page not found" };
-  return { title: topic.label, description: topic.short };
+  return {
+    title: topic.label,
+    description: topic.short,
+    ...canonicalMetadata(`/${topic.slug}`),
+  };
 }
 
-export default async function MarketPage({ params }: MarketPageProps) {
-  const { slug } = await params;
-  const topic = findTopic(slug);
+export default async function CategoryPage({ params }: CategoryPageProps) {
+  const { category } = await params;
+  const topic = findTopic(category);
   if (!topic) notFound();
 
   const guides = await getGuides(topic.label);
-  const iconBySlug: Record<string, NonNullable<CategoryTile["icon"]>> = {
-    "stock-market": "stock",
-    forex: "forex",
-    crypto: "crypto",
-    "trading-strategies": "strategies",
-    "technical-analysis": "analysis",
-  };
 
   return (
     <div>
@@ -67,10 +66,7 @@ export default async function MarketPage({ params }: MarketPageProps) {
         <div className="relative mx-auto max-w-7xl px-4 py-12 sm:py-16">
           <Breadcrumbs
             tone="inverse"
-            items={[
-              { label: "Home", href: "/" },
-              { label: topic.label },
-            ]}
+            items={[{ label: "Home", href: "/" }, { label: topic.label }]}
           />
           <p className="mt-10 text-xs font-semibold uppercase tracking-[0.18em] text-teal-300">
             Market guide
@@ -81,13 +77,21 @@ export default async function MarketPage({ params }: MarketPageProps) {
           <p className="mt-4 max-w-2xl text-base leading-relaxed text-white/70 sm:text-lg">
             {topic.description}
           </p>
-          <Link
-            href="/blog"
-            className="group mt-8 inline-flex items-center gap-2 rounded-lg bg-teal-400 px-5 py-3 text-sm font-semibold text-navy-950 transition-colors hover:bg-teal-300"
-          >
-            Browse the blog
-            <ArrowRight className="hover-arrow h-4 w-4" aria-hidden="true" />
-          </Link>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link
+              href={`/blog?category=${encodeURIComponent(topic.label)}`}
+              className="group inline-flex items-center gap-2 rounded-lg bg-teal-400 px-5 py-3 text-sm font-semibold text-navy-950 transition-colors hover:bg-teal-300"
+            >
+              View {topic.label} articles
+              <ArrowRight className="hover-arrow h-4 w-4" aria-hidden="true" />
+            </Link>
+            <Link
+              href="/blog"
+              className="inline-flex items-center gap-2 rounded-lg border border-white/20 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/10"
+            >
+              Browse the blog
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -98,8 +102,14 @@ export default async function MarketPage({ params }: MarketPageProps) {
           </h2>
           <ul className="mt-6 space-y-4">
             {topic.bullets.map((bullet) => (
-              <li key={bullet} className="flex gap-3 text-sm leading-relaxed text-ink-700">
-                <Check className="mt-0.5 h-5 w-5 shrink-0 text-teal-700" aria-hidden="true" />
+              <li
+                key={bullet}
+                className="flex gap-3 text-sm leading-relaxed text-ink-700"
+              >
+                <Check
+                  className="mt-0.5 h-5 w-5 shrink-0 text-teal-700"
+                  aria-hidden="true"
+                />
                 {bullet}
               </li>
             ))}
@@ -129,12 +139,12 @@ export default async function MarketPage({ params }: MarketPageProps) {
               href={`/blog?category=${encodeURIComponent(topic.label)}`}
               className="group inline-flex items-center gap-1.5 text-sm font-semibold text-teal-700"
             >
-              See all
+              View all
               <ArrowRight className="hover-arrow h-4 w-4" aria-hidden="true" />
             </Link>
           </div>
           {guides.length === 0 ? (
-            <div className="mt-8 rounded-xl border border-dashed border-slate-300 p-10 text-center text-sm text-ink-500">
+            <div className="mt-8 rounded-xl border border-dashed border-slate-300 bg-white p-10 text-center text-sm text-ink-500">
               No guides published in this category yet.
             </div>
           ) : (
@@ -149,18 +159,33 @@ export default async function MarketPage({ params }: MarketPageProps) {
         </div>
       </section>
 
-      <CategorySection
-        title="Continue exploring"
-        description="Every market has its own rhythm. Compare the basics before you commit to a playbook."
-        items={marketTopics
-          .filter((item) => item.slug !== topic.slug)
-          .map((item) => ({
-            label: item.label,
-            href: `/market/${item.slug}`,
-            description: item.short,
-            icon: iconBySlug[item.slug],
-          }))}
-      />
+      <section className="mx-auto max-w-7xl px-4 py-16">
+        <h2 className="font-serif text-3xl font-semibold text-ink-900">
+          Continue exploring
+        </h2>
+        <p className="mt-3 max-w-2xl text-ink-500">
+          Every market has its own rhythm. Compare the basics before you commit
+          to a playbook.
+        </p>
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {marketTopics
+            .filter((item) => item.slug !== topic.slug)
+            .map((item) => (
+              <Link
+                key={item.slug}
+                href={`/${item.slug}`}
+                className="card-lift group rounded-xl border border-slate-200 bg-white p-5"
+              >
+                <p className="font-semibold text-ink-900">{item.label}</p>
+                <p className="mt-2 text-sm text-ink-500">{item.short}</p>
+                <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-teal-700">
+                  Explore
+                  <ArrowRight className="hover-arrow h-4 w-4" aria-hidden="true" />
+                </span>
+              </Link>
+            ))}
+        </div>
+      </section>
     </div>
   );
 }

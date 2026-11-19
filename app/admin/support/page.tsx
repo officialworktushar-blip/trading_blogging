@@ -38,7 +38,7 @@ export default function AdminSupportPage() {
       </div>
 
       <Link
-        href="/contact"
+        href="/contact-support"
         target="_blank"
         className="group inline-flex items-center gap-1.5 text-sm font-semibold text-teal-700"
       >

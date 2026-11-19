@@ -219,3 +219,28 @@ body {
   background: transparent;
   padding: 0;
 }
+
+.post-content .image-placeholder,
+.post-content [data-image-placeholder] {
+  display: block;
+  margin: 1.5rem 0;
+  padding: 1.25rem 1rem;
+  border: 2px dashed #cbd5e1;
+  border-radius: 0.75rem;
+  background: #f1f5f9;
+  color: #475569;
+  text-align: center;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.post-content .image-placeholder:empty::before,
+.post-content [data-image-placeholder]:empty::before {
+  content: "Image placeholder";
+  color: #64748b;
+  font-weight: 500;
+}
+
+.reading-progress {
+  transform-origin: left;
+}
