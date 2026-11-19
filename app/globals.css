@@ -7,39 +7,165 @@
   --color-brand-600: #2563eb;
   --color-brand-700: #1d4ed8;
   --color-brand-900: #1e3a8a;
+  --color-navy-950: #071427;
+  --color-navy-900: #0b1f3a;
+  --color-navy-800: #122c4f;
+  --color-navy-700: #1c3d66;
+  --color-teal-300: #5eead4;
+  --color-teal-400: #2dd4bf;
+  --color-teal-500: #14b8a6;
+  --color-teal-600: #0d9488;
+  --color-up: #16a34a;
+  --color-down: #dc2626;
   --color-ink-900: #0f172a;
   --color-ink-700: #334155;
   --color-ink-500: #64748b;
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+  --font-serif:
+    "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino, Georgia,
+    serif;
 }
 
 body {
   background-color: #ffffff;
   color: var(--color-ink-900);
-  font-family:
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    "Segoe UI",
-    Roboto,
-    Helvetica,
-    Arial,
-    sans-serif;
+  font-family: var(--font-sans);
 }
 
-/* Minimal typography for TipTap-rendered post HTML */
+:focus-visible {
+  outline: 2px solid var(--color-teal-500);
+  outline-offset: 3px;
+}
+
+@keyframes ticker-scroll {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@keyframes float-y {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -10px, 0);
+  }
+}
+
+@keyframes line-draw {
+  from {
+    stroke-dashoffset: 120;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ticker-track {
+    animation: ticker-scroll 36s linear infinite;
+    will-change: transform;
+  }
+  .ticker-viewport:hover .ticker-track,
+  .ticker-viewport:focus-within .ticker-track {
+    animation-play-state: paused;
+  }
+  .float-y {
+    animation: float-y 7s ease-in-out infinite;
+    will-change: transform;
+  }
+  .float-y-delayed {
+    animation-delay: -2.5s;
+  }
+  .logo-line {
+    stroke-dasharray: 120;
+    animation: line-draw 1.4s ease-out forwards;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+  }
+}
+
+.card-lift {
+  transition:
+    transform 220ms ease,
+    box-shadow 220ms ease,
+    border-color 220ms ease;
+}
+.card-lift:hover {
+  transform: translate3d(0, -4px, 0);
+  box-shadow: 0 18px 40px -22px rgb(7 20 39 / 0.35);
+}
+@media (prefers-reduced-motion: reduce) {
+  .card-lift,
+  .card-lift:hover {
+    transform: none;
+    transition: none;
+  }
+}
+
+.hover-arrow {
+  transition: transform 200ms ease;
+}
+.group:hover .hover-arrow {
+  transform: translate3d(4px, 0, 0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .hover-arrow,
+  .group:hover .hover-arrow {
+    transform: none;
+    transition: none;
+  }
+}
+
+.tile-icon {
+  transition: transform 220ms ease;
+}
+.group:hover .tile-icon {
+  transform: translate3d(0, -2px, 0) scale(1.08);
+}
+@media (prefers-reduced-motion: reduce) {
+  .tile-icon,
+  .group:hover .tile-icon {
+    transform: none;
+    transition: none;
+  }
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+/* Typography for TipTap-rendered post HTML */
 .post-content {
   line-height: 1.75;
 }
+.post-content h2,
+.post-content h3 {
+  font-family: var(--font-serif);
+  letter-spacing: -0.015em;
+}
 .post-content h2 {
-  font-size: 1.5rem;
+  font-size: 1.65rem;
   font-weight: 700;
-  margin-top: 2rem;
+  margin-top: 2.25rem;
   margin-bottom: 0.75rem;
 }
 .post-content h3 {
-  font-size: 1.25rem;
+  font-size: 1.3rem;
   font-weight: 600;
-  margin-top: 1.5rem;
+  margin-top: 1.75rem;
   margin-bottom: 0.5rem;
 }
 .post-content p {
@@ -55,12 +181,15 @@ body {
   padding-left: 1.5rem;
   margin-bottom: 1rem;
 }
+.post-content li {
+  margin-bottom: 0.35rem;
+}
 .post-content a {
   color: var(--color-brand-600);
   text-decoration: underline;
 }
 .post-content blockquote {
-  border-left: 4px solid var(--color-brand-500);
+  border-left: 4px solid var(--color-teal-400);
   padding-left: 1rem;
   font-style: italic;
   color: var(--color-ink-700);
@@ -79,7 +208,7 @@ body {
   font-size: 0.875em;
 }
 .post-content pre {
-  background-color: #0f172a;
+  background-color: var(--color-navy-950);
   color: #e2e8f0;
   padding: 1rem;
   border-radius: 0.5rem;
